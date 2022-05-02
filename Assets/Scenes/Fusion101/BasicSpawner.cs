@@ -7,16 +7,27 @@ using UnityEngine.SceneManagement;
 
 public class BasicSpawner : MonoBehaviour, INetworkRunnerCallbacks
 {
-    NetworkRunner runner;
+    NetworkRunner _runner;
     [SerializeField] private NetworkPrefabRef playerPrefab;
     Dictionary<PlayerRef, NetworkObject> spawnedCharacters = new Dictionary<PlayerRef, NetworkObject>();
 
     public void OnInputMissing(NetworkRunner runner, PlayerRef player, NetworkInput input) { }
     public void OnShutdown(NetworkRunner runner, ShutdownReason shutdownReason) { }
-    public void OnConnectedToServer(NetworkRunner runner) { }
-    public void OnDisconnectedFromServer(NetworkRunner runner) { }
-    public void OnConnectRequest(NetworkRunner runner, NetworkRunnerCallbackArgs.ConnectRequest request, byte[] token) { }
-    public void OnConnectFailed(NetworkRunner runner, NetAddress remoteAddress, NetConnectFailedReason reason) { }
+    public void OnConnectedToServer(NetworkRunner runner) {
+        Debug.Log("Connected to server");
+        if(runner.Topology == SimulationConfig.Topologies.Shared) Debug.Log("Shared mode");
+        else Debug.Log("ClientServer mode");
+    }
+    public void OnDisconnectedFromServer(NetworkRunner runner) {
+        Debug.Log("Disconnected from server");
+    }
+    public void OnConnectRequest(NetworkRunner runner, NetworkRunnerCallbackArgs.ConnectRequest request, byte[] token) {
+        Debug.Log("requst accept()");
+        request.Accept();
+    }
+    public void OnConnectFailed(NetworkRunner runner, NetAddress remoteAddress, NetConnectFailedReason reason) {
+        Debug.Log($"Connect failed {reason} {remoteAddress.ToString()}");
+    }
     public void OnUserSimulationMessage(NetworkRunner runner, SimulationMessagePtr message) { }
     public void OnSessionListUpdated(NetworkRunner runner, List<SessionInfo> sessionList) { }
     public void OnCustomAuthenticationResponse(NetworkRunner runner, Dictionary<string, object> data) { }
@@ -37,9 +48,12 @@ public class BasicSpawner : MonoBehaviour, INetworkRunnerCallbacks
     }
 
     public void OnPlayerJoined(NetworkRunner runner, PlayerRef player) {
+        // if (!runner.IsServer) return;
+
         // Create a unique position for the player
         Vector3 spawnPosition = new Vector3((player.RawEncoded%runner.Config.Simulation.DefaultPlayers)*3,1,0);
         NetworkObject networkPlayerObject = runner.Spawn(playerPrefab, spawnPosition, Quaternion.identity, player);
+        Debug.LogError("Spawn.......");
         // Keep track of the player avatars so we can remove it when they disconnect
         spawnedCharacters.Add(player, networkPlayerObject);
     }
@@ -54,20 +68,21 @@ public class BasicSpawner : MonoBehaviour, INetworkRunnerCallbacks
 
     async void StartGame(GameMode mode) {
           // Create the Fusion runner and let it know that we will be providing user input
-        runner = gameObject.AddComponent<NetworkRunner>();
-        runner.ProvideInput = true;
+        _runner = gameObject.AddComponent<NetworkRunner>();
+        _runner.ProvideInput = true;
 
         // Start or join (depends on gamemode) a session with a specific name
-        await runner.StartGame(new StartGameArgs() {
+        Debug.LogError($"StartGame: mode {mode}");
+        await _runner.StartGame(new StartGameArgs() {
             GameMode = mode,
-            SessionName = "TestRoom",
+            SessionName = "TestRoomMaz",
             Scene = SceneManager.GetActiveScene().buildIndex,
             SceneObjectProvider = gameObject.AddComponent<NetworkSceneManagerDefault>()
         });
     }
 
     void OnGUI() {
-        if(runner == null) {
+        if(_runner == null) {
             if(GUI.Button(new Rect(0,0,200,40), "Host")) StartGame(GameMode.Host);
             if(GUI.Button(new Rect(0,40,200,40), "Join")) StartGame(GameMode.Client);
         }

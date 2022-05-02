@@ -686,12 +686,13 @@
             <param name="customAppSettings">Custom Photon App Settings</param>
             <returns>Async Task of the connect to Photon Cloud process. Can be used to wait for the process to be finished</returns>
         </member>
-        <member name="M:Fusion.CloudServices.JoinSessionLobby(Fusion.SessionLobby,System.String)">
+        <member name="M:Fusion.CloudServices.JoinSessionLobby(Fusion.SessionLobby,System.String,Fusion.Photon.Realtime.LobbyType)">
             <summary>
             Join the Peer to a specific Lobby, either a prebuild or a custom one
             </summary>
             <param name="sessionLobby">Lobby Type to Join</param>
-            <param name="lobbyID">Lobby ID</param>
+            <param name="lobbyID">Custom Lobby ID</param>
+            <param name="lobbyType">Custom Lobby Type</param>
             <returns>True if the operation could be completed. <see cref="M:Fusion.Photon.Realtime.LoadBalancingClient.OpJoinLobby(Fusion.Photon.Realtime.TypedLobby)"/></returns>
         </member>
         <member name="M:Fusion.CloudServices.EnterRoom(Fusion.StartGameArgs)">
@@ -1308,6 +1309,14 @@
             <param name="tag">The string name of the tag. Can be an <see cref="T:Fusion.AccuracyDefaults"/> constant, or your own defined default.</param>
             <param name="value">The value that will be used if the AccuracyDefaults toggle is deselected in the inspector.</param>
         </member>
+        <member name="M:Fusion.Accuracy.#ctor(System.String)">
+            <summary>
+            Accuracy constructor for named <see cref="T:Fusion.AccuracyDefaults"/> usage. Pass the named default to this constructor.
+            The <see cref="P:Fusion.Accuracy.Value"/>, <see cref="P:Fusion.Accuracy.Inverse"/> properties and the <see cref="M:Fusion.Accuracy.GetReadAccuracy(Fusion.NetworkProjectConfig)"/> and <see cref="M:Fusion.Accuracy.GetWriteAccuracy(Fusion.NetworkProjectConfig)"/> methods 
+            will lookup their return values using the <see cref="T:Fusion.AccuracyDefaults"/> in the supplied <see cref="P:Fusion.NetworkRunner.Config"/>.
+            </summary>
+            <param name="tag"></param>
+        </member>
         <member name="M:Fusion.Accuracy.op_Implicit(System.Single)~Fusion.Accuracy">
             <summary>
             Implicit operator to convert floats into accuracy.
@@ -1630,19 +1639,27 @@
             Accuracy used for layer weight values.
             </summary>
         </member>
-        <member name="M:Fusion.NetworkMecanimAnimator.SetTrigger(System.Int32)">
+        <member name="M:Fusion.NetworkMecanimAnimator.SetTrigger(System.Int32,System.Boolean)">
             <summary>
-            Queues a trigger with this animator. Call this instead of Animator.SetTrigger for the State Authority.
-            Triggers are prone to getting lost by animation syncs, as they may get reset before the value is synced. Setting triggers with this method ensures they get captured.
+            Queues a SetTrigger() call for the associated Animator on the State Authority. Call this instead of Animator.SetTrigger() for the State Authority to ensure that triggers are captured.
+            On State Authority, this call will defer the SetTrigger() pass-through to the Animator until FixedUpdateNetwork() is called, 
+            where all queued triggers will be executed (this is to ensure tick agreement between server and clients).
             </summary>
             <param name="triggerHash"></param>
+            <param name="passThroughOnInputAuthority">Will call Animator.SetTrigger() immediately on the InputAuthority. If false, SetTrigger() will not be called on the Input Authority at all
+            and Animator.SetTrigger() should be called explicitly as needed.
+            </param>
         </member>
-        <member name="M:Fusion.NetworkMecanimAnimator.SetTrigger(System.String)">
+        <member name="M:Fusion.NetworkMecanimAnimator.SetTrigger(System.String,System.Boolean)">
             <summary>
-            Queues a trigger with this animator. Call this instead of Animator.SetTrigger for the State Authority.
-            Triggers are prone to getting lost by animation syncs, as they may get reset before the value is synced. Setting triggers with this method ensures they get captured.
+            Queues a SetTrigger() call for the associated Animator on the State Authority. Call this instead of Animator.SetTrigger() for the State Authority to ensure that triggers are captured.
+            On State Authority, this call will defer the SetTrigger() pass-through to the Animator until FixedUpdateNetwork() is called, 
+            where all queued triggers will be executed (this is to ensure tick agreement between server and clients).
             </summary>
             <param name="trigger"></param>
+            <param name="passThroughOnInputAuthority">Will call Animator.SetTrigger() immediately on the InputAuthority. If false, SetTrigger() will not be called on the Input Authority at all
+            and Animator.SetTrigger() should be called explicitly as needed.
+            </param>
         </member>
         <member name="T:Fusion.NetworkPhysicsSimulation2D">
             <summary>
@@ -1867,6 +1884,11 @@
             Sets the <see cref="P:Fusion.NetworkRigidbody.Rigidbody"/> <see cref="P:UnityEngine.Rigidbody.isKinematic"/> field to <paramref name="value"/>.
             </summary>
         </member>
+        <member name="M:Fusion.NetworkRigidbody.SetCollisionDetectionMode(UnityEngine.CollisionDetectionMode)">
+            <summary>
+            Sets the <see cref="P:Fusion.NetworkRigidbody.Rigidbody"/> collision detection <paramref name="mode"/>.
+            </summary>
+        </member>
         <member name="P:Fusion.NetworkRigidbody.DefaultTeleportInterpolationVelocity">
             <summary>
             Sets the default teleport interpolation velocity to be the rigidbody velocity.
@@ -2087,6 +2109,12 @@
         <member name="M:Fusion.NetworkRigidbody2D.SetIsKinematic(System.Boolean)">
             <summary>
             Sets the <see cref="P:Fusion.NetworkRigidbody2D.Rigidbody"/> <see cref="P:UnityEngine.Rigidbody2D.isKinematic"/> field to <paramref name="value"/>.
+            </summary>
+        </member>
+        <member name="M:Fusion.NetworkRigidbody2D.SetCollisionDetectionMode(UnityEngine.CollisionDetectionMode)">
+            <summary>
+            Sets the <see cref="P:UnityEngine.Rigidbody2D.collisionDetectionMode"/> to <see cref="F:UnityEngine.CollisionDetectionMode2D.Discrete"/> if <paramref name="mode"/>
+            is <see cref="F:UnityEngine.CollisionDetectionMode.Discrete"/>, and to <see cref="F:UnityEngine.CollisionDetectionMode2D.Continuous"/> otherwise.
             </summary>
         </member>
         <member name="P:Fusion.NetworkRigidbody2D.DefaultTeleportInterpolationVelocity">
@@ -2341,6 +2369,11 @@
             <summary>
             Sets a 2D or 3D rigid body kinematic field to <paramref name="value"/>,
             according to the explicit implementation.
+            </summary>
+        </member>
+        <member name="M:Fusion.NetworkRigidbodyBase.SetCollisionDetectionMode(UnityEngine.CollisionDetectionMode)">
+            <summary>
+            Sets a 2D or 3D rigid body collision detection <paramref name="mode"/>.
             </summary>
         </member>
         <member name="F:Fusion.NetworkRigidbodyBase._forceSnapshotInterpolated">
@@ -2745,7 +2778,7 @@
         </member>
         <member name="M:Fusion.NetworkTransform.PredictedSpawnFailed">
             <summary>
-            Implements <see cref="M:Fusion.IPredictedSpawnBehaviour.PredictedSpawnFailed"/> and, by default, calls Destroy on this GameObject.
+            Implements <see cref="M:Fusion.IPredictedSpawnBehaviour.PredictedSpawnFailed"/> and does nothing by default.
             </summary>
         </member>
         <member name="M:Fusion.NetworkTransform.PredictedSpawnSuccess">
@@ -3017,7 +3050,7 @@
         </member>
         <member name="F:Fusion.NetworkTransform.InterpolationSpace">
             <summary>
-            If the <see cref="F:Fusion.NetworkTransform.InterpolationTarget">Interpolation Target</see> should be interpolated in world space or in the local space of a networked parent.
+            If the <see cref="F:Fusion.NetworkTransform.InterpolationTarget"/> should be interpolated in world space or in the local space of a networked parent.
             Interpolating in local space requires more computations, but gives more accurate visuals if/when a parent rotates. 
             </summary>
         </member>
@@ -4027,7 +4060,7 @@
             </summary>
             <param name="toUpdate"></param>
         </member>
-        <member name="M:Fusion.BVH.#ctor(Fusion.Mapper,System.Collections.Generic.List{Fusion.HitboxRoot},System.Single)">
+        <member name="M:Fusion.BVH.#ctor(Fusion.Mapper,System.Int32,System.Collections.Generic.List{Fusion.HitboxRoot},System.Single)">
             <summary>
             initializes a BVH with a given nodeAdaptor, and object list.
             </summary>
@@ -4091,6 +4124,11 @@
             World-space position (includes Offset) of this <see cref="T:Fusion.Hitbox"/>.
             </summary>
         </member>
+        <member name="F:Fusion.Hitbox.GizmosColor">
+            <summary>
+            Color used when drawing gizmos for this hitbox.
+            </summary>
+        </member>
         <member name="M:Fusion.Hitbox.OnDrawGizmos">
             <summary>
             Draws this hitbox gizmo on Unity editor.
@@ -4129,6 +4167,11 @@
         <member name="F:Fusion.LagCompensationSettings.HitboxBufferSize">
             <summary>
             Hitbox snapshot history size in ticks.
+            </summary>
+        </member>
+        <member name="F:Fusion.LagCompensationSettings.HitboxCapacity">
+            <summary>
+            Hitbox capacity per snapshot.
             </summary>
         </member>
         <member name="F:Fusion.LagCompensationSettings.ExpansionFactor">
@@ -4450,6 +4493,11 @@
             which are then used in the final <b><i>narrowphase</i></b> query.</para>
             </summary>
         </member>
+        <member name="F:Fusion.HitboxRoot.GizmosColor">
+            <summary>
+            Color used when drawing gizmos for this hitbox.
+            </summary>
+        </member>
         <member name="F:Fusion.HitboxRoot.Hitboxes">
             <summary>
             All Hitbox instances in hierarchy. Auto-filled at Spawned.
@@ -4670,7 +4718,7 @@
             <summary>
             Sets the <see cref="P:Fusion.Changed`1.Behaviour"/> to represent the changed state after the triggering change occurred.
             This is the already default state of the behaviour when an OnChanged callback occurs, 
-            and only needs to be called to undo a previous <see cref="M:Fusion.Changed`1.LoadNew"/> call in your callback handler.
+            and only needs to be called to revert from a previous <see cref="M:Fusion.Changed`1.LoadOld"/> call in your changed callback handler.
             </summary>
         </member>
         <member name="T:Fusion.EditorHeaderIcon">
@@ -4877,7 +4925,8 @@
         </member>
         <member name="T:Fusion.NetworkArray`1">
             <summary>
-            Fusion type for networking arrays. Capacity is fixed, and needs to be set the maximum possible number of entries.<br></br><br></br>
+            Fusion type for networking arrays. 
+            Maximum capacity is fixed, and is set with the <see cref="T:Fusion.CapacityAttribute"/>.<br></br><br></br>
             <para>Typical Usage:
             <code>
             [Networked, Capacity(4)]<br></br>
@@ -4890,7 +4939,6 @@
             </code></para>
             <para>Usage for modifying data:
             <code>
-            var array = syncedArray;
             array.Set(123);
             array[0] = 456;
             </code></para>
@@ -4961,7 +5009,8 @@
         </member>
         <member name="T:Fusion.NetworkDictionary`2">
             <summary>
-            Fusion type for networking Dictionaries. Capacity is fixed, and needs to be set the maximum possible number of entries.<br></br><br></br>
+            Fusion type for networking Dictionaries. 
+            Maximum capacity is fixed, and is set with the <see cref="T:Fusion.CapacityAttribute"/>.<br></br><br></br>
             <para>Typical Usage:
             <code>
             [Networked, Capacity(10)]<br></br>
@@ -5050,7 +5099,8 @@
         </member>
         <member name="T:Fusion.NetworkLinkedList`1">
             <summary>
-            Fusion type for networking LinkedLists. Capacity is fixed, and needs to be set the maximum possible number of entries.<br></br><br></br>
+            Fusion type for networking LinkedLists. 
+            Maximum capacity is fixed, and is set with the <see cref="T:Fusion.CapacityAttribute"/>.<br></br><br></br>
             Typical Usage:
             <para><code>
             [Networked, Capacity(10)]<br></br>
@@ -5617,6 +5667,42 @@
             The id of the root most <see cref="T:Fusion.NetworkObject"/>, if this <see cref="T:Fusion.NetworkObject"/> is nested.
             </summary>
         </member>
+        <member name="T:Fusion.INetworkObjectPool">
+            <summary>
+            Interface which defines the handlers for <see cref="T:Fusion.NetworkRunner"/> Spawn() and Despawn() actions. 
+            Passing an instance of this interface to <see cref="M:Fusion.NetworkRunner.StartGame(Fusion.StartGameArgs)"/> 
+            as the <see cref="F:Fusion.StartGameArgs.ObjectPool"/> argument value will assign that instance 
+            as the handler for runner Spawn() and Despawn() actions.
+            By default (if <see cref="F:Fusion.StartGameArgs.ObjectPool"/> == null) actions will use Instantiate(), and Despawn() actions will use Destroy().
+            </summary>
+        </member>
+        <member name="M:Fusion.INetworkObjectPool.AcquireInstance(Fusion.NetworkRunner,Fusion.NetworkPrefabInfo)">
+            <summary>
+            The pooling implementation used for Spawn() actions.
+            </summary>
+            <param name="runner">The <see cref="T:Fusion.NetworkRunner"/> which Spawn() is being called from.</param>
+            <param name="info">Meta data about the prefab being spawned. Typical usage:
+            <code>
+            | NetworkObject AcquireInstance(NetworkRunner runner, NetworkPrefabInfo info)
+            | {
+            |   if(runner.Config.PrefabTable.TryGetPrefab(info.Prefab, out NetworkObject prefab)){
+            |     // Instantiate or Get Prefab prefab from your custom pool.
+            |   }
+            | }
+            </code>
+            </param>
+            <returns></returns>
+        </member>
+        <member name="M:Fusion.INetworkObjectPool.ReleaseInstance(Fusion.NetworkRunner,Fusion.NetworkObject,System.Boolean)">
+            <summary>
+            The pooling handler implementation for Despawn() actions.
+            </summary>
+            <param name="runner">The <see cref="T:Fusion.NetworkRunner"/> which Despawn() is being called from.</param>
+            <param name="instance">The  <see cref="T:Fusion.NetworkObject"/> being released. Disable or Destroy this object as needed.</param>
+            <param name="isSceneObject">Indicates if this <see cref="T:UnityEngine.GameObject"/> was created by a Spawn action, 
+            or if it originated as an object in a loaded scene. Scene objects may need special handling, 
+            such as being returned to the scene disabled, rather than being returned to the general pool.</param>
+        </member>
         <member name="T:Fusion.NetworkPrefabAsset">
             <summary>
             Represents a base class for "prefab assets" - assets that point to a prefab and provide a way to load them.
@@ -5633,19 +5719,36 @@
             the type of this asset will change to <see cref="T:Fusion.NetworkPrefabAsset"/>.
             </summary>
         </member>
+        <member name="T:Fusion.NetworkPrefabId">
+            <summary>
+            ID for a <see cref="T:Fusion.NetworkObject"/> Prefab which has been cataloged in a <see cref="F:Fusion.NetworkProjectConfig.PrefabTable"/>.
+            </summary>
+        </member>
+        <member name="T:Fusion.NetworkPrefabInfo">
+            <summary>
+            Meta data for a <see cref="T:Fusion.NetworkObject"/> prefab which has been cataloged in a <see cref="F:Fusion.NetworkProjectConfig.PrefabTable"/>.
+            </summary>
+        </member>
+        <member name="F:Fusion.NetworkPrefabInfo.Prefab">
+            <summary>
+            Prefab ID.
+            Use <see cref="M:Fusion.NetworkPrefabTable.TryAdd(Fusion.NetworkObjectGuid,Fusion.INetworkPrefabSource,Fusion.NetworkPrefabId@)"/> 
+            to look up the actual prefab reference in the <see cref="F:Fusion.NetworkProjectConfig.PrefabTable"/>.
+            </summary>
+        </member>
         <member name="F:Fusion.NetworkPrefabInfo.Header">
             <summary>
-            Header data for this object
+            Header data for the <see cref="T:Fusion.NetworkObject"/> prefab.
             </summary>
         </member>
         <member name="P:Fusion.NetworkPrefabInfo.HasHeader">
             <summary>
-            If we have a header or not
+            If the Header is not null.
             </summary>
         </member>
         <member name="P:Fusion.NetworkPrefabInfo.Data">
             <summary>
-            Data pointer to the first word of this objects data block
+            Data pointer to the first word of this <see cref="T:Fusion.NetworkObject"/>'s data block.
             </summary>
         </member>
         <member name="M:Fusion.NetworkPrefabTable.TryAdd(Fusion.NetworkObjectGuid,Fusion.INetworkPrefabSource,Fusion.NetworkPrefabId@)">
@@ -5694,26 +5797,31 @@
         <member name="P:Fusion.RpcAttribute.Sources">
             <summary>
             The legal <see cref="T:Fusion.RpcSources"/> types that can trigger this Rpc. Cast to int.
+            Default value is (int)<see cref="F:Fusion.RpcSources.All"/>.
             </summary>
         </member>
         <member name="P:Fusion.RpcAttribute.Targets">
             <summary>
             The <see cref="T:Fusion.RpcTargets"/> types that will receive and invoke this method. Cast to int.
+            Default value is (int)<see cref="F:Fusion.RpcTargets.All"/>.
             </summary>
         </member>
         <member name="P:Fusion.RpcAttribute.InvokeLocal">
             <summary>
             Indicates if the method should be called locally (on the RPC caller). This happens immediately.
+            Default value is true.
             </summary>
         </member>
         <member name="P:Fusion.RpcAttribute.InvokeResim">
             <summary>
             Indicates if this RPC will execute during resims, or only once on the first execution of the associated tick.
+            Default value is false.
             </summary>
         </member>
         <member name="P:Fusion.RpcAttribute.Channel">
             <summary>
-            Specifies which RpcChannel to use.
+            Specifies which RpcChannel to use. 
+            Default value is <see cref="F:Fusion.RpcChannel.Reliable"/>
             </summary>
         </member>
         <member name="P:Fusion.RpcAttribute.TickAligned">
@@ -5721,6 +5829,7 @@
             Indicates if this RPC's execution will be postponed until the local simulation catches up with the sender's Tick number.
             Even if set to false, the order of Rpcs is always preserved. Rpcs are deferred until all preceding Rpcs have
             executed.
+            Default value is true.
             </summary>
         </member>
         <member name="P:Fusion.RpcAttribute.HostMode">
@@ -5728,9 +5837,17 @@
             Options for when the game is run in <see cref="F:Fusion.SimulationModes.Host"/> mode and RPC is invoked by the host.
             </summary>
         </member>
+        <member name="M:Fusion.RpcAttribute.#ctor">
+            <summary>
+            Constructor for RpcAttributes.
+            </summary>
+        </member>
         <member name="M:Fusion.RpcAttribute.#ctor(Fusion.RpcSources,Fusion.RpcTargets)">
-            <param name="sources">The legal <see cref="T:Fusion.RpcSources"/> types that can trigger this Rpc</param>
-            <param name="targets">The <see cref="T:Fusion.RpcTargets"/> types that will receive and invoke this method</param>
+            <summary>
+            Constructor for RpcAttributes.
+            </summary>
+            <param name="sources">The legal <see cref="T:Fusion.RpcSources"/> types that can trigger this Rpc. Default is <see cref="F:Fusion.RpcSources.All"/></param>
+            <param name="targets">The <see cref="T:Fusion.RpcTargets"/> types that will receive and invoke this method. Default is <see cref="F:Fusion.RpcTargets.All"/></param>
         </member>
         <member name="F:Fusion.RpcChannel.Reliable">
             <summary>
@@ -5995,9 +6112,37 @@
             Default file name for the <see cref="T:Fusion.NetworkProjectConfig"/> asset
             </summary>
         </member>
+        <member name="T:Fusion.NetworkProjectConfig.AssetLoadingDelegate">
+            <summary>
+            <see cref="E:Fusion.NetworkProjectConfig.GlobalAssetLoading"/>
+            </summary>
+        </member>
+        <member name="T:Fusion.NetworkProjectConfig.AssetUndloadingDelegate">
+            <summary>
+            <see cref="E:Fusion.NetworkProjectConfig.GlobalAssetUnloading"/>
+            </summary>
+        </member>
+        <member name="E:Fusion.NetworkProjectConfig.GlobalAssetLoading">
+            <summary>
+            Invoked when a config is a about to be loaded from a default location (a Resource <see cref="F:Fusion.NetworkProjectConfig.DefaultResourceName"/>).
+            If the event returns a non-null value, it will accepted as the config source and no attempt
+            to load the default asset will be made.
+            </summary>
+        </member>
+        <member name="E:Fusion.NetworkProjectConfig.GlobalAssetUnloading">
+            <summary>
+            Invoked when a config is about to be unloaded (due to <see cref="M:Fusion.NetworkProjectConfig.UnloadGlobal"/>).
+            </summary>
+        </member>
         <member name="P:Fusion.NetworkProjectConfig.Global">
             <summary>
             Reference for the default <see cref="T:Fusion.NetworkProjectConfig"/>
+            </summary>
+        </member>
+        <member name="M:Fusion.NetworkProjectConfig.UnloadGlobal">
+            <summary>
+            Unloads <see cref="P:Fusion.NetworkProjectConfig.Global"/>, if already loaded. If loading <see cref="P:Fusion.NetworkProjectConfig.Global"/> has faulted, resets the state
+            and next call to the <see cref="P:Fusion.NetworkProjectConfig.Global"/> accessor will attempt to load the config again.
             </summary>
         </member>
         <member name="F:Fusion.NetworkProjectConfig.CurrentTypeId">
@@ -6264,9 +6409,20 @@
         </member>
         <member name="M:Fusion.NetworkRunner.GetInstancesEnumerator">
             <summary>
-            Get enumerator for the collection of all <see cref="T:Fusion.NetworkRunner"/>s.
+            Get enumerator for the collection of all <see cref="T:Fusion.NetworkRunner"/>s. Allows
+            to enumerate alloc-free.
             </summary>
             <returns></returns>
+        </member>
+        <member name="P:Fusion.NetworkRunner.Instances">
+            <summary>
+            A list of all <see cref="T:Fusion.NetworkRunner"/>s.
+            </summary>
+        </member>
+        <member name="P:Fusion.NetworkRunner.IsSimulationUpdating">
+            <summary>
+            Is the runner updating the simulation.
+            </summary>
         </member>
         <member name="F:Fusion.NetworkRunner._initializeOperation">
             <summary>
@@ -6528,6 +6684,14 @@
             </summary>
             <param name="player"></param>
             <returns></returns>
+        </member>
+        <member name="M:Fusion.NetworkRunner.GetPlayerConnectionToken(Fusion.PlayerRef)">
+            <summary>
+            Returns a copy of the Connection Token used by a Player when connecting to this Server.
+            Only available on Server. It will return null if running on a Client or the Connection token is missing
+            </summary>
+            <param name="player">PlayerRef to check for a Connection Token</param>
+            <returns>Copy of the Connection Token</returns>
         </member>
         <member name="M:Fusion.NetworkRunner.GetAllBehaviours(System.Type)">
             <summary>
@@ -7794,6 +7958,13 @@
             </para>
             </summary>
         </member>
+        <member name="M:Fusion.Simulation.PlayerConnectionToken(Fusion.PlayerRef)">
+            <summary>
+            Return a copy if a Player's Connection Token
+            </summary>
+            <param name="player">Player to check for the Connection Token</param>
+            <returns>Connection Token Copy</returns>
+        </member>
         <member name="M:Fusion.Simulation.Update(System.Double)">
             <summary>
             Forwards the Simulation based on the Delta Time
@@ -7936,6 +8107,11 @@
         <member name="F:Fusion.SimulationConfig.TickRate">
             <summary>
             The update rate of the simulation in Hz (ticks per second).
+            </summary>
+        </member>
+        <member name="F:Fusion.SimulationConfig.MaxPrediction">
+            <summary>
+            The max amount of predicted ticks on a client in server or host mode, if this is overstepped on client a hard reset will be done on client to bring it down to correct prediction .
             </summary>
         </member>
         <member name="F:Fusion.SimulationConfig.DefaultPlayers">
