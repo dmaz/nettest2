@@ -56,8 +56,8 @@ GameObject:
   m_Component:
   - component: {fileID: 1425686090078580243}
   - component: {fileID: 5699011642424101451}
-  - component: {fileID: 4538552642273473966}
   - component: {fileID: -7461320337097739567}
+  - component: {fileID: 8863908580556218885}
   m_Layer: 0
   m_Name: Player
   m_TagString: Untagged
@@ -104,10 +104,23 @@ MonoBehaviour:
     RawGuidValue: 8f2192bf374a7b8489d96989f1aadba3
   NestedObjects: []
   NetworkedBehaviours:
-  - {fileID: 4538552642273473966}
   - {fileID: -7461320337097739567}
+  - {fileID: 8863908580556218885}
   SimulationBehaviours: []
---- !u!114 &4538552642273473966
+--- !u!114 &-7461320337097739567
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 5932272493093581447}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 9c4504f924435c343a62146ad176713e, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  _interpolationDataSource: 0
+--- !u!114 &8863908580556218885
 MonoBehaviour:
   m_ObjectHideFlags: 0
   m_CorrespondingSourceObject: {fileID: 0}
@@ -153,19 +166,6 @@ MonoBehaviour:
     MaxSlope: 60
     MaxSlopeSpeed: 5
     _gravity: {x: 0, y: -9.81, z: 0}
---- !u!114 &-7461320337097739567
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 5932272493093581447}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 9c4504f924435c343a62146ad176713e, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: 
-  _interpolationDataSource: 0
 --- !u!1 &7214577828776702293
 GameObject:
   m_ObjectHideFlags: 0

@@ -26,7 +26,7 @@ public class BasicSpawner : MonoBehaviour, INetworkRunnerCallbacks
         request.Accept();
     }
     public void OnConnectFailed(NetworkRunner runner, NetAddress remoteAddress, NetConnectFailedReason reason) {
-        Debug.Log($"Connect failed {reason} {remoteAddress.ToString()}");
+        Debug.Log($"Connect failed {reason} {remoteAddress}");
     }
     public void OnUserSimulationMessage(NetworkRunner runner, SimulationMessagePtr message) { }
     public void OnSessionListUpdated(NetworkRunner runner, List<SessionInfo> sessionList) { }
@@ -44,11 +44,13 @@ public class BasicSpawner : MonoBehaviour, INetworkRunnerCallbacks
         if (Input.GetKey(KeyCode.A)) data.direction += Vector3.left;
         if (Input.GetKey(KeyCode.D)) data.direction += Vector3.right;
 
+        data.C = Input.GetKey(KeyCode.C);
+
         input.Set(data);
     }
 
     public void OnPlayerJoined(NetworkRunner runner, PlayerRef player) {
-        // if (!runner.IsServer) return;
+        if (!runner.IsServer) return;
 
         // Create a unique position for the player
         Vector3 spawnPosition = new Vector3((player.RawEncoded%runner.Config.Simulation.DefaultPlayers)*3,1,0);

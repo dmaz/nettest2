@@ -8,4 +8,10 @@ EditorBuildSettings:
   - enabled: 1
     path: Assets/Scenes/Fusion101/Fusion101.unity
     guid: 99c9720ab356a0642a771bea13969a05
+  - enabled: 0
+    path: Assets/Scenes/try3.unity
+    guid: 48035148f6366c543a9166f8a9184a09
+  - enabled: 0
+    path: Assets/Scenes/try2.unity
+    guid: a2f7d2f7c422c2840b54f01ff1bd87aa
   m_configObjects: {}
