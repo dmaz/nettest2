@@ -69,6 +69,8 @@ public class BasicSpawner : MonoBehaviour, INetworkRunnerCallbacks
     }
 
     async void StartGame(GameMode mode) {
+        string roomId = SystemInfo.deviceUniqueIdentifier;
+        Debug.Log("uid: "+roomId);
           // Create the Fusion runner and let it know that we will be providing user input
         _runner = gameObject.AddComponent<NetworkRunner>();
         _runner.ProvideInput = true;
@@ -77,7 +79,7 @@ public class BasicSpawner : MonoBehaviour, INetworkRunnerCallbacks
         Debug.LogError($"StartGame: mode {mode}");
         await _runner.StartGame(new StartGameArgs() {
             GameMode = mode,
-            SessionName = "TestRoomMaz",
+            SessionName = roomId,
             Scene = SceneManager.GetActiveScene().buildIndex,
             SceneObjectProvider = gameObject.AddComponent<NetworkSceneManagerDefault>()
         });
@@ -85,8 +87,11 @@ public class BasicSpawner : MonoBehaviour, INetworkRunnerCallbacks
 
     void OnGUI() {
         if(_runner == null) {
-            if(GUI.Button(new Rect(0,0,200,40), "Host")) StartGame(GameMode.Host);
-            if(GUI.Button(new Rect(0,40,200,40), "Join")) StartGame(GameMode.Client);
+            if(GUI.Button(new Rect(0,0,200,40), "Auto")) StartGame(GameMode.AutoHostOrClient);
+            if(GUI.Button(new Rect(0,40,200,40), "Host")) StartGame(GameMode.Host);
+            if(GUI.Button(new Rect(0,80,200,40), "Join")) StartGame(GameMode.Client);
+            if(GUI.Button(new Rect(0,120,200,40), "Shared")) StartGame(GameMode.Shared);
+            if(GUI.Button(new Rect(0,160,200,40), "Single")) StartGame(GameMode.Single);
         }
     }
 }

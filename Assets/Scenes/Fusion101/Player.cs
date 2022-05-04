@@ -27,7 +27,7 @@ public class Player : NetworkBehaviour
             data.direction.Normalize();
             cc.Move(5*data.direction * Runner.DeltaTime);
         }
-        base.FixedUpdateNetwork();
+        // base.FixedUpdateNetwork();
     }
 }
 
