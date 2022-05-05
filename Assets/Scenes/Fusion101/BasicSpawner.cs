@@ -7,8 +7,11 @@ using UnityEngine.SceneManagement;
 
 public class BasicSpawner : MonoBehaviour, INetworkRunnerCallbacks
 {
-    NetworkRunner _runner;
     [SerializeField] private NetworkPrefabRef playerPrefab;
+    [SerializeField] private LayerMask mouseLayerMask;
+
+    NetworkRunner _runner;
+
     Dictionary<PlayerRef, NetworkObject> spawnedCharacters = new Dictionary<PlayerRef, NetworkObject>();
 
     public void OnInputMissing(NetworkRunner runner, PlayerRef player, NetworkInput input) { }
@@ -44,10 +47,25 @@ public class BasicSpawner : MonoBehaviour, INetworkRunnerCallbacks
         if (Input.GetKey(KeyCode.A)) data.direction += Vector3.left;
         if (Input.GetKey(KeyCode.D)) data.direction += Vector3.right;
 
+        data.mousePosition = GetLookDirection();
+
         data.C = Input.GetKey(KeyCode.C);
 
         input.Set(data);
     }
+
+    Vector3 GetLookDirection() {
+        RaycastHit hit;
+        Ray ray = Camera.main.ScreenPointToRay(Input.mousePosition);
+
+        Vector3 mouseCollisionPoint = Vector3.zero;
+        if (Physics.Raycast(ray, out hit, Mathf.Infinity, mouseLayerMask)) {
+            if (hit.collider) mouseCollisionPoint = hit.point;
+        }
+
+        return new Vector2(mouseCollisionPoint.x,mouseCollisionPoint.z);
+    }
+
 
     public void OnPlayerJoined(NetworkRunner runner, PlayerRef player) {
         if (!runner.IsServer) return;
@@ -68,8 +86,10 @@ public class BasicSpawner : MonoBehaviour, INetworkRunnerCallbacks
         }
     }
 
+
     async void StartGame(GameMode mode) {
         string roomId = SystemInfo.deviceUniqueIdentifier;
+        roomId = "aaa";
         Debug.Log("uid: "+roomId);
           // Create the Fusion runner and let it know that we will be providing user input
         _runner = gameObject.AddComponent<NetworkRunner>();

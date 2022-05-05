@@ -3,16 +3,33 @@ using UnityEngine;
 
 public class Player : NetworkBehaviour
 {
+
     [Networked(OnChanged = nameof(OnColor), Default = nameof(defaultColor))]
     public Color color {get;set;}
     Color defaultColor = new Color(0,0,0,1);
 
-    NetworkCharacterController cc;
+    public Transform turret;
+
+    NetworkCharacterControllerPrototype cc;
     Renderer renderer;
 
+    [Networked]
+    Vector2 aimDirection {get;set;}
+
     void Awake() {
-        cc = GetComponent<NetworkCharacterController>();
+        cc = GetComponent<NetworkCharacterControllerPrototype>();
         renderer = GetComponentInChildren<Renderer>();
+
+    }
+
+    void Update() {
+
+    }
+
+    public override void Render() {
+        if(aimDirection.sqrMagnitude>0) {
+            turret.forward = Vector3.Lerp(turret.forward, new Vector3(aimDirection.x,0,aimDirection.y), Time.deltaTime * 100f);
+        }
     }
 
     public static void OnColor(Changed<Player> obj) {
@@ -20,15 +37,22 @@ public class Player : NetworkBehaviour
     }
 
     public override void FixedUpdateNetwork() {
+        // Get our input struct and act accordingly. This method will only return data if we
+        // have Input or State Authority - meaning on the controlling player or the server.
         if(GetInput(out NetworkInputData data)) {
             if(data.C) {
                 color = new Color(Random.Range(0f,1f),Random.Range(0f,1f),Random.Range(0f,1f),1f);
             }
+
+            aimDirection = data.mousePosition - new Vector2(transform.position.x, transform.position.z);
+
             data.direction.Normalize();
-            cc.Move(5*data.direction * Runner.DeltaTime);
         }
-        // base.FixedUpdateNetwork();
+        cc.Move(data.direction);
     }
+
+
+
 }
 
 /*
