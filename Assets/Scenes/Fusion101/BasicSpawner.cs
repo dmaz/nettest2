@@ -14,30 +14,15 @@ public class BasicSpawner : MonoBehaviour, INetworkRunnerCallbacks
 
     Dictionary<PlayerRef, NetworkObject> spawnedCharacters = new Dictionary<PlayerRef, NetworkObject>();
 
-    public void OnInputMissing(NetworkRunner runner, PlayerRef player, NetworkInput input) { }
-    public void OnShutdown(NetworkRunner runner, ShutdownReason shutdownReason) { }
-    public void OnConnectedToServer(NetworkRunner runner) {
-        Debug.Log("Connected to server");
-        if(runner.Topology == SimulationConfig.Topologies.Shared) Debug.Log("Shared mode");
-        else Debug.Log("ClientServer mode");
+    void OnGUI() {
+        if(_runner == null) {
+            if(GUI.Button(new Rect(0,0,200,40), "Auto")) StartGame(GameMode.AutoHostOrClient);
+            if(GUI.Button(new Rect(0,40,200,40), "Host")) StartGame(GameMode.Host);
+            if(GUI.Button(new Rect(0,80,200,40), "Join")) StartGame(GameMode.Client);
+            if(GUI.Button(new Rect(0,120,200,40), "Shared")) StartGame(GameMode.Shared);
+            if(GUI.Button(new Rect(0,160,200,40), "Single")) StartGame(GameMode.Single);
+        }
     }
-    public void OnDisconnectedFromServer(NetworkRunner runner) {
-        Debug.Log("Disconnected from server");
-    }
-    public void OnConnectRequest(NetworkRunner runner, NetworkRunnerCallbackArgs.ConnectRequest request, byte[] token) {
-        Debug.Log("requst accept()");
-        request.Accept();
-    }
-    public void OnConnectFailed(NetworkRunner runner, NetAddress remoteAddress, NetConnectFailedReason reason) {
-        Debug.Log($"Connect failed {reason} {remoteAddress}");
-    }
-    public void OnUserSimulationMessage(NetworkRunner runner, SimulationMessagePtr message) { }
-    public void OnSessionListUpdated(NetworkRunner runner, List<SessionInfo> sessionList) { }
-    public void OnCustomAuthenticationResponse(NetworkRunner runner, Dictionary<string, object> data) { }
-    public void OnHostMigration(NetworkRunner runner, HostMigrationToken hostMigrationToken) { }
-    public void OnReliableDataReceived(NetworkRunner runner, PlayerRef player, ArraySegment<byte> data) { }
-    public void OnSceneLoadDone(NetworkRunner runner) { }
-    public void OnSceneLoadStart(NetworkRunner runner) { }
 
     public void OnInput(NetworkRunner runner, NetworkInput input) {
         var data = new NetworkInputData();
@@ -105,13 +90,31 @@ public class BasicSpawner : MonoBehaviour, INetworkRunnerCallbacks
         });
     }
 
-    void OnGUI() {
-        if(_runner == null) {
-            if(GUI.Button(new Rect(0,0,200,40), "Auto")) StartGame(GameMode.AutoHostOrClient);
-            if(GUI.Button(new Rect(0,40,200,40), "Host")) StartGame(GameMode.Host);
-            if(GUI.Button(new Rect(0,80,200,40), "Join")) StartGame(GameMode.Client);
-            if(GUI.Button(new Rect(0,120,200,40), "Shared")) StartGame(GameMode.Shared);
-            if(GUI.Button(new Rect(0,160,200,40), "Single")) StartGame(GameMode.Single);
-        }
+    public void OnConnectedToServer(NetworkRunner runner) {
+        Debug.Log("Connected to server");
+        if(runner.Topology == SimulationConfig.Topologies.Shared) Debug.Log("Shared mode");
+        else Debug.Log("ClientServer mode");
     }
+    public void OnDisconnectedFromServer(NetworkRunner runner) {
+        Debug.Log("Disconnected from server");
+    }
+    public void OnConnectRequest(NetworkRunner runner, NetworkRunnerCallbackArgs.ConnectRequest request, byte[] token) {
+        Debug.Log("requst accept()");
+        request.Accept();
+    }
+    public void OnConnectFailed(NetworkRunner runner, NetAddress remoteAddress, NetConnectFailedReason reason) {
+        Debug.Log($"Connect failed {reason} {remoteAddress}");
+    }
+
+    public void OnInputMissing(NetworkRunner runner, PlayerRef player, NetworkInput input) { }
+    public void OnShutdown(NetworkRunner runner, ShutdownReason shutdownReason) { }
+    public void OnUserSimulationMessage(NetworkRunner runner, SimulationMessagePtr message) { }
+    public void OnSessionListUpdated(NetworkRunner runner, List<SessionInfo> sessionList) { }
+    public void OnCustomAuthenticationResponse(NetworkRunner runner, Dictionary<string, object> data) { }
+    public void OnHostMigration(NetworkRunner runner, HostMigrationToken hostMigrationToken) { }
+    public void OnReliableDataReceived(NetworkRunner runner, PlayerRef player, ArraySegment<byte> data) { }
+    public void OnSceneLoadDone(NetworkRunner runner) { }
+    public void OnSceneLoadStart(NetworkRunner runner) { }
+
+
 }
