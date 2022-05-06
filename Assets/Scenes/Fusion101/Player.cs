@@ -3,12 +3,15 @@ using UnityEngine;
 
 public class Player : NetworkBehaviour
 {
+    [SerializeField] private Bullet bulletPrefab;
+    [Networked] TickTimer bulletSpawnDelay {get;set;}
 
-    [Networked(OnChanged = nameof(OnColor), Default = nameof(defaultColor))]
-    public Color color {get;set;}
-    Color defaultColor = new Color(0,0,0,1);
+    [Networked(OnChanged = nameof(OnKeyC))]
+    int materialIndex {get;set;}
+    public Material[] materials;
 
     public Transform turret;
+    public Transform muzzle;
 
     NetworkCharacterControllerPrototype cc;
     Renderer renderer;
@@ -22,7 +25,11 @@ public class Player : NetworkBehaviour
 
     }
 
-    void Update() {
+    public override void Spawned() {
+        Debug.LogError("player ObjectIndex: "+this.ObjectIndex);
+        Debug.LogError("player Id: "+Id);
+        Debug.LogError("player NetworkId: "+Object.Id);
+        Debug.LogError("runner : "+Runner.FindObject(Object.Id));
 
     }
 
@@ -32,8 +39,9 @@ public class Player : NetworkBehaviour
         }
     }
 
-    public static void OnColor(Changed<Player> obj) {
-        obj.Behaviour.renderer.material.SetColor("_BaseColor",obj.Behaviour.color);
+    public static void OnKeyC(Changed<Player> obj) {
+        var me = obj.Behaviour;
+        me.renderer.material = me.materials[me.materialIndex];
     }
 
     public override void FixedUpdateNetwork() {
@@ -41,12 +49,21 @@ public class Player : NetworkBehaviour
         // have Input or State Authority - meaning on the controlling player or the server.
         if(GetInput(out NetworkInputData data)) {
             if(data.C) {
-                color = new Color(Random.Range(0f,1f),Random.Range(0f,1f),Random.Range(0f,1f),1f);
+                materialIndex = (materialIndex+1) % materials.Length;
             }
 
             aimDirection = data.mousePosition - new Vector2(transform.position.x, transform.position.z);
 
             data.direction.Normalize();
+
+            if(bulletSpawnDelay.ExpiredOrNotRunning(Runner) && data.mouse0) {
+                var bulletDirection = new Vector3(aimDirection.x, 0, aimDirection.y);
+                Runner.Spawn(bulletPrefab, muzzle.position, Quaternion.LookRotation(bulletDirection),
+                    null,
+                    (runner, o) => {o.GetComponent<Enemy>().Init();}
+                );
+                bulletSpawnDelay = TickTimer.CreateFromSeconds(Runner, .5f);
+            }
         }
         cc.Move(data.direction);
     }

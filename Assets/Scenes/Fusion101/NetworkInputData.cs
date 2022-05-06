@@ -3,7 +3,8 @@ using UnityEngine;
 
 public struct NetworkInputData : INetworkInput
 {
-    public bool C;
+    public NetworkBool mouse0;
+    public NetworkBool C;
     public Vector3 direction;
     public Vector2 mousePosition;
 }

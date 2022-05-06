@@ -34,6 +34,7 @@ public class BasicSpawner : MonoBehaviour, INetworkRunnerCallbacks
 
         data.mousePosition = GetLookDirection();
 
+        data.mouse0 = Input.GetMouseButton(0);
         data.C = Input.GetKey(KeyCode.C);
 
         input.Set(data);
@@ -56,9 +57,9 @@ public class BasicSpawner : MonoBehaviour, INetworkRunnerCallbacks
         if (!runner.IsServer) return;
 
         // Create a unique position for the player
-        Vector3 spawnPosition = new Vector3((player.RawEncoded%runner.Config.Simulation.DefaultPlayers)*3,1,0);
+        Vector3 spawnPosition = new Vector3((player.RawEncoded%runner.Config.Simulation.DefaultPlayers)*3, .6f, 0);
         NetworkObject networkPlayerObject = runner.Spawn(playerPrefab, spawnPosition, Quaternion.identity, player);
-        Debug.LogError("Spawn.......");
+        Debug.LogError("Spawn......."+player);
         // Keep track of the player avatars so we can remove it when they disconnect
         spawnedCharacters.Add(player, networkPlayerObject);
     }
