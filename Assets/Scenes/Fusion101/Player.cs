@@ -60,7 +60,7 @@ public class Player : NetworkBehaviour
                 var bulletDirection = new Vector3(aimDirection.x, 0, aimDirection.y);
                 Runner.Spawn(bulletPrefab, muzzle.position, Quaternion.LookRotation(bulletDirection),
                     null,
-                    (runner, o) => {o.GetComponent<Enemy>().Init();}
+                    (runner, o) => {o.GetComponent<Bullet>().Init();}
                 );
                 bulletSpawnDelay = TickTimer.CreateFromSeconds(Runner, .5f);
             }
