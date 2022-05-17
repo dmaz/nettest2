@@ -95,6 +95,8 @@ GameObject:
   - component: {fileID: 4223968223081229041}
   - component: {fileID: 4223968223081229040}
   - component: {fileID: 2009241564511445779}
+  - component: {fileID: 8525152580817572596}
+  - component: {fileID: 312104275432741748}
   - component: {fileID: 6393476072973830204}
   m_Layer: 0
   m_Name: Enemy
@@ -169,6 +171,8 @@ MonoBehaviour:
   NetworkedBehaviours:
   - {fileID: 4223968223081229041}
   - {fileID: 2009241564511445779}
+  - {fileID: 8525152580817572596}
+  - {fileID: 312104275432741748}
   SimulationBehaviours: []
 --- !u!114 &2009241564511445779
 MonoBehaviour:
@@ -183,6 +187,36 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   _interpolationDataSource: 0
+--- !u!114 &8525152580817572596
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 4223968223081229043}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 1b1f9845d57e52142974e998329f0024, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  _interpolationDataSource: 0
+  _amount: 10
+  _destroyed:
+    _value: 0
+--- !u!114 &312104275432741748
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 4223968223081229043}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 83f5e0fa9097cf34f8f313157351062c, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  _interpolationDataSource: 0
+  _amount: 25
 --- !u!65 &6393476072973830204
 BoxCollider:
   m_ObjectHideFlags: 0

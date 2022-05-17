@@ -14,6 +14,13 @@ namespace Fusion {
 
     private static WeakReference<NetworkSceneManagerBase> s_currentlyLoading = new WeakReference<NetworkSceneManagerBase>(null);
 
+    /// <summary>
+    /// When enabled, a small info button overlays will be added to the Hierarchy Window 
+    /// for each active <see cref="NetworkRunner"/> and for its associated scene.
+    /// </summary>
+    [InlineHelp]
+    [ToggleLeft]
+    [MultiPropertyDrawersFix]
     public bool ShowHierarchyWindowOverlay = true;
 
     private IEnumerator _runningCoroutine;

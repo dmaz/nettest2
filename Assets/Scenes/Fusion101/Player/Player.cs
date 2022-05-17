@@ -26,16 +26,16 @@ public class Player : NetworkBehaviour
     }
 
     public override void Spawned() {
-        Debug.LogError("player ObjectIndex: "+this.ObjectIndex);
-        Debug.LogError("player Id: "+Id);
-        Debug.LogError("player NetworkId: "+Object.Id);
-        Debug.LogError("runner : "+Runner.FindObject(Object.Id));
+        Debug.Log("player ObjectIndex: "+this.ObjectIndex);
+        Debug.Log("player Id: "+Id);
+        Debug.Log("player NetworkId: "+Object.Id);
+        Debug.Log("runner : "+Runner.FindObject(Object.Id));
 
     }
 
     public override void Render() {
         if(aimDirection.sqrMagnitude>0) {
-            turret.forward = Vector3.Lerp(turret.forward, new Vector3(aimDirection.x,0,aimDirection.y), Time.deltaTime * 100f);
+            turret.forward = Vector3.Lerp(turret.forward, new Vector3(aimDirection.x,0,aimDirection.y), Runner.DeltaTime * 2f);
         }
     }
 
@@ -58,9 +58,11 @@ public class Player : NetworkBehaviour
 
             if(bulletSpawnDelay.ExpiredOrNotRunning(Runner) && data.mouse0) {
                 var bulletDirection = new Vector3(aimDirection.x, 0, aimDirection.y);
+                var key = new NetworkObjectPredictionKey {Byte0 = (byte) Object.InputAuthority.RawEncoded, Byte1 = (byte) Runner.Simulation.Tick};
                 Runner.Spawn(bulletPrefab, muzzle.position, Quaternion.LookRotation(bulletDirection),
                     null,
-                    (runner, o) => {o.GetComponent<Bullet>().Init();}
+                    (runner, o) => {o.GetComponent<Bullet>().InitNetworkState(Object);},
+                    key
                 );
                 bulletSpawnDelay = TickTimer.CreateFromSeconds(Runner, .5f);
             }

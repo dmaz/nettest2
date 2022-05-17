@@ -11,6 +11,8 @@ public class BasicSpawner : MonoBehaviour, INetworkRunnerCallbacks
     [SerializeField] private LayerMask mouseLayerMask;
 
     NetworkRunner _runner;
+    Vector2 lastLook;
+    int playerCount;
 
     Dictionary<PlayerRef, NetworkObject> spawnedCharacters = new Dictionary<PlayerRef, NetworkObject>();
 
@@ -41,6 +43,8 @@ public class BasicSpawner : MonoBehaviour, INetworkRunnerCallbacks
     }
 
     Vector3 GetLookDirection() {
+        if(!Application.isFocused) return lastLook;
+
         RaycastHit hit;
         Ray ray = Camera.main.ScreenPointToRay(Input.mousePosition);
 
@@ -49,7 +53,8 @@ public class BasicSpawner : MonoBehaviour, INetworkRunnerCallbacks
             if (hit.collider) mouseCollisionPoint = hit.point;
         }
 
-        return new Vector2(mouseCollisionPoint.x,mouseCollisionPoint.z);
+        lastLook = new Vector2(mouseCollisionPoint.x,mouseCollisionPoint.z);
+        return lastLook;
     }
 
 
@@ -57,11 +62,13 @@ public class BasicSpawner : MonoBehaviour, INetworkRunnerCallbacks
         if (!runner.IsServer) return;
 
         // Create a unique position for the player
-        Vector3 spawnPosition = new Vector3((player.RawEncoded%runner.Config.Simulation.DefaultPlayers)*3, .6f, 0);
+        // Vector3 spawnPosition = new Vector3((player.RawEncoded%runner.Config.Simulation.DefaultPlayers)*3, .6f, 0);
+        Vector3 spawnPosition = new Vector3(playerCount*2, .6f, 0);
         NetworkObject networkPlayerObject = runner.Spawn(playerPrefab, spawnPosition, Quaternion.identity, player);
         Debug.LogError("Spawn......."+player);
         // Keep track of the player avatars so we can remove it when they disconnect
         spawnedCharacters.Add(player, networkPlayerObject);
+        playerCount++;
     }
 
     public void OnPlayerLeft(NetworkRunner runner, PlayerRef player) {
